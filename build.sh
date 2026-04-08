@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CFLAGS="-O3 -g -Wall -lcsfml-graphics -lcsfml-window -lcsfml-system"
+CFLAGS="-O2 -g -Wall -lcsfml-graphics -lcsfml-window -lcsfml-system -mavx -mavx2"
 
 SOURCE="main.cpp draw.cpp calc.cpp"
 OUTPUT="prog"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CSFML/Graphics.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <math.h>
 
@@ -12,3 +13,8 @@ typedef struct {
 
 void change_color(sfEvent event, color_t* color_offset, 
                   uint8_t increment); 
+
+void handle_events(sfEvent event, sfRenderWindow* window, 
+                   color_t color_offset);
+
+void draw_fps(sfClock* fps_clock);

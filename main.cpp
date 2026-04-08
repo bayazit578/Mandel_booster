@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include <CSFML/Graphics/Font.h>
+#include <stdint.h>
 #include <CSFML/Window.h>
 #include <CSFML/Graphics.h>
-#include <stdint.h>
 
 #include "calc.h"
 #include "draw.h"
@@ -15,53 +15,32 @@ int main() {
     sfImage* image = sfImage_create({IMG_WDTH, IMG_HGHT});
 
     sfClock* fps_clock = sfClock_create();
-    uint32_t frame_count = 0;
-    uint32_t fps = 0;
+
+    sfFont* font = sfFont_createFromFile("fonts/MTF Epic.ttf"); 
+
+    sfText* title_text = sfText_create(font);
+    sfText_setString(title_text, "FPS:GAY");
+    sfText_setCharacterSize(title_text, 10);
+    sfText_setFillColor(title_text, {255, 255, 255, 255});
+
+    sfText_setOutlineColor(title_text, sfBlack);
+    sfText_setOutlineThickness(title_text, 2.0f);
     
     color_t color_offset = {};
-    trans_t transform = {0.003f, 388.f, 680.f};
+    trans_t transform = {0.007f, 300.f, 400.f};
         
-    sfEvent event;
+    sfEvent event = {};
+
     while (sfRenderWindow_isOpen(window)) {
         while (sfRenderWindow_pollEvent(window, &event)) {
-            switch (event.type) {
-                case sfEvtClosed:
-                    sfRenderWindow_close(window);
-                    break;
-
-                case sfEvtKeyPressed:
-                    if (event.key.control) {
-                        change_color(event, &color_offset, 1); 
-                    }
-
-                    else if (event.key.alt) {
-                        change_color(event, &color_offset, -1); 
-                    }
-
-                    else if (event.key.shift 
-                          && event.key.code == sfKeyEqual) {
-                    }
-
-                    break;
-
-                default:
-                    break;
-            }
+            handle_events(event, window, color_offset);
         }
 
         sfRenderWindow_clear(window, sfBlack);
 
-        calc_mandelbrot_vector(image, transform, 
-                               color_offset);
+        calc_mandelbrot_vector(image, transform, color_offset);
 
-        frame_count++;
-        if (sfTime_asSeconds(sfClock_getElapsedTime(fps_clock)) 
-            >= 1.0f) {
-            fps = frame_count;
-            frame_count = 0;
-            sfClock_restart(fps_clock);
-            printf("FPS: %u\n", fps);
-        }
+        draw_fps(fps_clock);
 
         sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
         sfTexture_updateFromImage(texture, image, {0, 0});
