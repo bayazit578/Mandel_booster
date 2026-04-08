@@ -6,9 +6,25 @@
 
 #include "draw.h"
 
-const float R2MAX = 100.f;
-const uint16_t NMAX = 255;
+const float R2MAX     = 4.f;
+const uint16_t NMAX   = 255;
 
-void calc_mandelbrot(sfImage* image, float scale, 
-                     float vert_offset, float hor_offset,
-                     color_t color_offset); 
+const int IMG_WDTH    = 1360;
+const int IMG_HGHT    = 768;
+const int VECTOR_WDTH = 170;
+const int VECTOR_HGHT = 96;
+
+typedef struct {
+        float scale;
+        float vert_offset;
+        float hor_offset;
+} trans_t;
+
+void calc_mandelbrot_scalar(sfImage* image, trans_t transform,
+                            color_t color_offset);
+
+void calc_mandelbrot_vector(sfImage* image, trans_t transform,
+                            color_t color_offset);
+
+void calc_mandelbrot_intrinc(sfImage* image, trans_t transform,
+                            color_t color_offset);
