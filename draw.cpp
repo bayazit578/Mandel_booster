@@ -1,6 +1,4 @@
 #include "draw.h"
-#include <CSFML/System/Types.h>
-#include <stdint.h>
 
 void handle_events(sfEvent event, sfRenderWindow* window, 
                    color_t color_offset) {
@@ -29,14 +27,30 @@ void handle_events(sfEvent event, sfRenderWindow* window,
     }
 }
 
-void draw_fps(sfClock* fps_clock) {
+sfText* prepare_text() {
+    sfFont* font = sfFont_createFromFile("fonts/Cascadia.ttf"); 
+
+    sfText* title_text = sfText_create(font);
+    sfText_setCharacterSize(title_text, 18);
+    sfText_setFillColor(title_text, sfWhite);
+    sfText_setOutlineColor(title_text, sfBlack);
+    sfText_setOutlineThickness(title_text, 2.0f); 
+
+    sfText_setPosition(title_text, {5, 0});
+
+    return title_text;
+}
+
+void draw_fps(sfClock* fps_clock, sfText* title_text) {
     static uint32_t frame_count = 0;
     frame_count++;
 
     if (sfTime_asSeconds(sfClock_getElapsedTime(fps_clock)) 
         >= 1.0f) {
         sfClock_restart(fps_clock);
-        printf("FPS: %u\n", frame_count);
+        char* buffer = (char*)calloc(8, sizeof(char));
+        sprintf(buffer, "%d", frame_count);
+        sfText_setString(title_text, buffer);
         frame_count = 0;
     }
 }

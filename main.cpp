@@ -16,11 +16,10 @@ int main() {
 
     sfClock* fps_clock = sfClock_create();
 
-    sfFont* font = sfFont_createFromFile("fonts/MTF Epic.ttf"); 
+    sfFont* font = sfFont_createFromFile("fonts/Cascadia.ttf");
 
     sfText* title_text = sfText_create(font);
-    sfText_setString(title_text, "FPS:GAY");
-    sfText_setCharacterSize(title_text, 10);
+    sfText_setCharacterSize(title_text, 16);
     sfText_setFillColor(title_text, {255, 255, 255, 255});
 
     sfText_setOutlineColor(title_text, sfBlack);
@@ -40,12 +39,13 @@ int main() {
 
         calc_mandelbrot_vector(image, transform, color_offset);
 
-        draw_fps(fps_clock);
+        draw_fps(fps_clock, title_text);
 
         sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
         sfTexture_updateFromImage(texture, image, {0, 0});
         sfSprite* sprite = sfSprite_create(texture);
         sfRenderWindow_drawSprite(window, sprite, NULL);
+        sfRenderWindow_drawText(window, title_text, NULL);
 
         sfRenderWindow_display(window);
         sfSprite_destroy(sprite);

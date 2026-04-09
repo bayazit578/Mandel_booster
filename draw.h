@@ -17,4 +17,4 @@ void change_color(sfEvent event, color_t* color_offset,
 void handle_events(sfEvent event, sfRenderWindow* window, 
                    color_t color_offset);
 
-void draw_fps(sfClock* fps_clock);
+void draw_fps(sfClock* fps_clock, sfText* title_text); 
