@@ -31,7 +31,7 @@ typedef struct {
 void calc_mandelbrot_scalar(sfImage* image, trans_t transform,
                             color_t color_offset);
 
-void calc_mandelbrot_vector(sfImage* image, trans_t transform,
+void calc_mandelbrot_array(sfImage* image, trans_t transform,
                             color_t color_offset);
 
 void calc_mandelbrot_intrin(sfImage* image, trans_t transform,

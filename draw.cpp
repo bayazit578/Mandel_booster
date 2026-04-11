@@ -1,5 +1,9 @@
 #include "draw.h"
 
+
+static void change_color(sfEvent event, color_t* color_offset, 
+                         uint8_t increment);
+
 void handle_events(sfEvent event, sfRenderWindow* window, 
                    color_t color_offset) {
     switch (event.type) {
@@ -55,8 +59,8 @@ void draw_fps(sfClock* fps_clock, sfText* title_text) {
     }
 }
 
-void change_color(sfEvent event, color_t* color_offset, 
-                  uint8_t increment) {
+static void change_color(sfEvent event, color_t* color_offset, 
+                         uint8_t increment) {
     
     switch (event.key.code) {
         case sfKeyR:
