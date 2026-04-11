@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CFLAGS="-O2 -g -Wall -lcsfml-graphics -lcsfml-window -lcsfml-system -mavx -mavx2 "
+CFLAGS="-O2 -g -Wall -Iinclude -lcsfml-graphics -lcsfml-window -lcsfml-system -mavx -mavx2 "
 SELECT_MODE=$1
 CFLAGS+=$SELECT_MODE
 BENCH_OUT=
@@ -11,7 +11,7 @@ if [ $# -eq 3 ]; then
     touch $BENCH_OUT
 fi
 
-SOURCE="main.cpp draw.cpp calc.cpp"
+SOURCE="src/main.cpp src/draw.cpp src/calc.cpp"
 OUTPUT="prog"
 DIR="compiled"
 
