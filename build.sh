@@ -6,14 +6,16 @@ CFLAGS+=$SELECT_MODE
 BENCH_OUT=
 
 if [ $# -eq 3 ]; then
-    CFLAGS+=$2
+    CFLAGS+=" $2"
     BENCH_OUT=$3
+    touch $BENCH_OUT
 fi
 
 SOURCE="main.cpp draw.cpp calc.cpp"
 OUTPUT="prog"
-FILENAME="compiled"
+DIR="compiled"
 
-mkdir -p $FILENAME
-g++ -o $FILENAME/$OUTPUT $BENCH_OUT $SOURCE $CFLAGS
-./$FILENAME/$OUTPUT $BENCH_OUT
+mkdir -p $DIR
+
+g++ -o $DIR/$OUTPUT $SOURCE $CFLAGS
+./$DIR/$OUTPUT $BENCH_OUT

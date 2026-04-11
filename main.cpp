@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <assert.h>
 #include <CSFML/Graphics/Font.h>
 #include <CSFML/Window.h>
 #include <CSFML/Graphics.h>
@@ -30,14 +31,18 @@
 
 int main(int argc, char* argv[]) {
     IF_BENCHMARK(
+        char* bench_filename = NULL;
         if (argc == 2) {
-            char* bench_filename = argv[1];
+            bench_filename = argv[1];
         } else {
-            perror("No input file for benchmark\n");
+            fprintf(stderr, "No output file for benchmark\n");
             return EXIT_FAILURE;
         }
 
         FILE* bench_out_file = fopen(bench_filename, "w");
+        if (!bench_out_file) {
+            perror("fopen error");
+        }
         );
 
     sfRenderWindow* window = 
@@ -72,15 +77,15 @@ int main(int argc, char* argv[]) {
 
         IF_BENCHMARK(
                 _mm_lfence(); 
-                uint32_t clock1 = __rdtsc()
+                int64_t clock1 = __rdtsc();
                 ); 
        
         CALC_MANDELBROT(image, transform, color_offset);
 
         IF_BENCHMARK(
                 _mm_lfence(); 
-                uint32_t clock2 = __rdtsc();
-                fprintf(bench_out_file, "%d\n", clock2 - clock1)
+                int64_t clock2 = __rdtsc();
+                fprintf(bench_out_file, "%ld\n", clock2 - clock1);
                 );
         
         draw_fps(fps_clock, title_text);
