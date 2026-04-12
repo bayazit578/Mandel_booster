@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <stdint.h>
 #include <assert.h>
 #include <CSFML/Graphics/Font.h>
@@ -17,13 +16,13 @@
 
 #if defined SCALAR_MODE
     #define CALC_MANDELBROT(image, transform, color_offset) \
-        calc_mandelbrot_scalar(image, transform, color_offset);
+        calc_mandelbrot_scalar(image, transform, color_offset)
 #elif defined ARRAY_MODE
     #define CALC_MANDELBROT(image, transform, color_offset) \
-        calc_mandelbrot_array(image, transform, color_offset);
+        calc_mandelbrot_array(image, transform, color_offset)
 #elif defined INTRIN_MODE
     #define CALC_MANDELBROT(image, transform, color_offset) \
-        calc_mandelbrot_intrin(image, transform, color_offset);
+        calc_mandelbrot_intrin(image, transform, color_offset)
 #else 
     #define CALC_MANDELBROT(image, transform, color_offset) \
         perror("No selected mode for Mandelbrot rendering"); \
@@ -114,5 +113,5 @@ int main(int argc, char* argv[]) {
     sfImage_destroy(image);
     sfRenderWindow_destroy(window);
 
-    return EXIT_SUCCESS;
+    return 0;
 }
