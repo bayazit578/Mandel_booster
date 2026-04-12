@@ -3,31 +3,53 @@
 FREQUENCY="2.4GHz"
 AFFINITY=3
 TS_INTERVAL=0.5
-XCUTABLE=compiled/prog
-OUT_DIR=statistics
+XCUTABLE="compiled/prog"
+CLOCK_DIR="clock"
+STAT_DIR="statistics"
 
-mkdir -p $OUT_DIR
+MODE=
+case "$1" in
+    "-DSCALAR_MODE")
+        MODE="scalar"
+        ;;
+    "-DARRAY_MODE")
+        MODE="array"
+        ;;
+    "-DINTRIN_MODE")
+        MODE="intrin"
+        ;;
+    *)
+        echo "Error: unknown mode '$1'"
+        exit 1
+        ;;
+esac
+
+mkdir -p $CLOCK_DIR
+mkdir -p $STAT_DIR
+PROG_ARG="$CLOCK_DIR/$MODE"
+touch $PROG_ARG
 
 sudo cpupower frequency-set -d $FREQUENCY
 sudo cpupower frequency-set -u $FREQUENCY
 sudo cpupower frequency-set -g performance
 
 benchmark() {
-     touch $OUT_DIR/bench_$2.ticks
+     touch "statistics/$2"
 
-    ./build.sh $1 -DBENCHMARK bench_$2.ticks
+    ./build.sh $1 -DBENCHMARK 
     
-    sudo turbostat --quiet --cpu $AFFINITY --show CPU,frequency,CoreThr,CoreTmp,Busy% \
-        --interval $TS_INTERVAL --Summary --out $OUT_DIR/bench_$2.statistics & disown
+    sudo turbostat --quiet --cpu $AFFINITY --show \
+        CPU,frequency,CoreThr,CoreTmp,Busy% --interval $TS_INTERVAL --Summary \
+        --out $STAT_DIR/$2 & disown
+
+    TS_PID=$!
     
-    TURBOSTAT_PID=$!
+    taskset --cpu-list $AFFINITY ./$XCUTABLE $PROG_ARG 
     
-    taskset --cpu-list $AFFINITY ./$XCUTABLE bench_$2.ticks
-    
-    kill $TURBOSTAT_PID
+    kill $TS_PID
 }
 
-benchmark "-DSCALAR_MODE" "scalar"
+benchmark $1 $MODE
 
 sudo cpupower frequency-set -d 500MHz
 sudo cpupower frequency-set -u 3GHz
