@@ -1,4 +1,5 @@
 compiled/
 .gdb_history
 .git/
+compile_commands.json
 
