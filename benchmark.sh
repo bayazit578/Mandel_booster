@@ -36,7 +36,7 @@ sudo cpupower frequency-set -g performance
 benchmark() {
      touch "statistics/$2"
 
-    ./build.sh $1 -DBENCHMARK 
+    ./build.sh "$1 -DBENCHMARK $3"
     
     sudo turbostat --quiet --cpu $AFFINITY --show \
         CPU,frequency,CoreThr,CoreTmp,Busy% --interval $TS_INTERVAL --Summary \
@@ -49,8 +49,16 @@ benchmark() {
     kill $TS_PID
 }
 
-benchmark $1 $MODE
+benchmark "$1" "$MODE" "$2"
 
 sudo cpupower frequency-set -d 500MHz
 sudo cpupower frequency-set -u 3GHz
 sudo cpupower frequency-set -g performance
+
+RESULTS_DIR="results_$2"
+mkdir -p $RESULTS_DIR
+SUMMARY="summary"
+
+python plots_bench.py $CLOCK_DIR/$MODE $STAT_DIR/$MODE $RESULTS_DIR/$MODE $RESULTS_DIR/$SUMMARY
+
+

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CFLAGS="-O2 -g -Wall -Iinclude -lcsfml-graphics -lcsfml-window -lcsfml-system \
+CFLAGS="-g -Wall -Iinclude -lcsfml-graphics -lcsfml-window -lcsfml-system \
         -mavx -mavx2 "
 CFLAGS+=$1
 
@@ -9,7 +9,7 @@ COMPILE_OUT="prog"
 COMPILE_DIR="compiled"
 
 if [ $# -eq 2 ]; then
-    CFLAGS+=" $2"
+    CFLAGS+=" $2 $3 -mavx -mavx2"
 fi
 
 mkdir -p $COMPILE_DIR
