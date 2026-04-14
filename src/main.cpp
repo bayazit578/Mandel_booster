@@ -9,12 +9,6 @@
 #include "calc.h"
 #include "draw.h"
 
-#ifdef BENCHMARK
-    #define IF_BENCHMARK(code) code
-#else
-    #define IF_BENCHMARK(code)
-#endif
-
 #if defined SCALAR_MODE
     #define CALC_MANDELBROT(image, transform, color_offset) \
         calc_mandelbrot_scalar(image, transform, color_offset);
@@ -46,15 +40,15 @@ int main(int argc, char* argv[]) {
         if (!bench_out_file) {
             perror("fopen error");
         }
-        )
+    )
 
     sfRenderWindow* window = 
-                    sfRenderWindow_create({IMG_WDTH, IMG_HGHT, 32},
-                                          "Mandelbrot", sfDefaultStyle, 
-                                          sfWindowed, NULL);
-    
-    sfImage* image = sfImage_create({IMG_WDTH, IMG_HGHT});
+                        sfRenderWindow_create({IMG_WDTH, IMG_HGHT, 32},
+                                              "Mandelbrot", sfDefaultStyle,
+                                              sfWindowed, NULL);
 
+    sfImage* image = sfImage_create({IMG_WDTH, IMG_HGHT});
+   
     sfClock* fps_clock = sfClock_create();
 
     sfFont* font = sfFont_createFromFile("fonts/Cascadia.ttf");
@@ -64,31 +58,33 @@ int main(int argc, char* argv[]) {
     sfText_setFillColor(title_text, {255, 255, 255, 255});
 
     sfText_setOutlineColor(title_text, sfBlack);
-    sfText_setOutlineThickness(title_text, 2.0f);
-    
+    sfText_setOutlineThickness(title_text, 2.0f);    
+        
+    sfEvent event = {}; 
+
     color_t color_offset = {};
     trans_t transform = {0.007f, 300.f, 400.f};
-        
-    sfEvent event = {};
 
     IF_BENCHMARK(uint32_t cycle_counter = 0;)
 
     while (sfRenderWindow_isOpen(window)) {
-        while (sfRenderWindow_pollEvent(window, &event)) {
-            handle_events(event, window, color_offset);
-        }
+        DRAWING(
+            while (sfRenderWindow_pollEvent(window, &event)) {
+                handle_events(event, window, color_offset);
+            }
 
-        sfRenderWindow_clear(window, sfBlack);
+            sfRenderWindow_clear(window, sfBlack);
+        )
 
         IF_BENCHMARK(
-                cycle_counter++;
-                if (cycle_counter == AVERAGE_CYCLE_COUNT) {
-                    break;
-                }
+            cycle_counter++;
+            if (cycle_counter == AVERAGE_CYCLE_COUNT) {
+                break;
+            }
 
-                _mm_lfence(); 
-                int64_t clock1 = __rdtsc();
-                )
+            _mm_lfence(); 
+            int64_t clock1 = __rdtsc();
+        )
        
         CALC_MANDELBROT(image, transform, color_offset)
 
@@ -96,9 +92,10 @@ int main(int argc, char* argv[]) {
                 _mm_lfence(); 
                 int64_t clock2 = __rdtsc();
                 fprintf(bench_out_file, "%ld\n", clock2 - clock1);
-                )
+        )
         
-        draw_fps(fps_clock, title_text);
+        DRAWING(
+            draw_fps(fps_clock, title_text);
 
         sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
         sfTexture_updateFromImage(texture, image, {0, 0});
@@ -106,13 +103,17 @@ int main(int argc, char* argv[]) {
         sfRenderWindow_drawSprite(window, sprite, NULL);
         sfRenderWindow_drawText(window, title_text, NULL);
 
-        sfRenderWindow_display(window);
         sfSprite_destroy(sprite);
         sfTexture_destroy(texture);
+        )
     }
 
-    sfImage_destroy(image);
-    sfRenderWindow_destroy(window);
+    DRAWING(
+        sfRenderWindow_destroy(window);
+    )
 
+    sfImage_destroy(image);
+    sfRenderWindow_display(window);
+    
     return EXIT_SUCCESS;
 }

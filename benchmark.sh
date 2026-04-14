@@ -36,7 +36,7 @@ sudo cpupower frequency-set -g performance
 benchmark() {
      touch "statistics/$2"
 
-    ./build.sh "$1 -DBENCHMARK $3"
+    ./build.sh "$1 $3 -DBENCHMARK"
     
     sudo turbostat --quiet --cpu $AFFINITY --show \
         CPU,frequency,CoreThr,CoreTmp,Busy% --interval $TS_INTERVAL --Summary \

@@ -101,15 +101,15 @@ def main():
     ax1.yaxis.get_offset_text().set_fontsize(10)
     
     # === ГРАФИК 2: Частота и температура ===
-    bar_width = TIME_STEP * 0.8
+    bar_width = TIME_STEP * 0.35  # Уменьшена ширина для отступов между барами
     
     # Левая ось - частота Bzy_MHz
-    ax2.bar(df_stats['Time_sec'], df_stats['Bzy_MHz'], 
+    ax2.bar(df_stats['Time_sec'] - bar_width/2, df_stats['Bzy_MHz'], 
             width=bar_width, 
             color='steelblue', 
             edgecolor='navy', 
             linewidth=0.5,
-            alpha=1.0,
+            alpha=0.6,
             label='Bzy_MHz')
     
     ax2.axhline(y=bzy_mean, color='darkblue', linestyle='--', linewidth=1.5, label=f'Среднее: {bzy_mean:.1f}')
@@ -122,12 +122,12 @@ def main():
     
     # Правая ось - температура
     ax2_twin = ax2.twinx()
-    ax2_twin.bar(df_stats['Time_sec'], df_stats['CoreTmp'], 
+    ax2_twin.bar(df_stats['Time_sec'] + bar_width/2, df_stats['CoreTmp'], 
                  width=bar_width, 
                  color='coral', 
                  edgecolor='darkred', 
                  linewidth=0.5,
-                 alpha=1.0,
+                 alpha=0.6,
                  label='CoreTmp')
     
     ax2_twin.set_ylabel('Температура (°C)', fontsize=11, color='coral')

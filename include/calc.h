@@ -25,9 +25,6 @@ typedef struct {
 const float R2MAX   = 4.f;
 const uint16_t NMAX = 255;
 
-const int IMG_WDTH = 800;
-const int IMG_HGHT = 600;
-
 const __m256 R2MAX_VECT = _mm256_set1_ps(R2MAX);
 const __m256 TWO_VECT   = _mm256_set1_ps(2.f);
 

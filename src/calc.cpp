@@ -1,6 +1,8 @@
 #include "calc.h"
 
-static sfColor set_color_by_N (float N, color_t color_offset); 
+DRAWING(
+    static sfColor set_color_by_N (float N, color_t color_offset);
+)
 
 void calc_mandelbrot_scalar(sfImage* image, trans_t transform,
                             color_t color_offset) {
@@ -13,7 +15,7 @@ void calc_mandelbrot_scalar(sfImage* image, trans_t transform,
             float x = 0,
                   y = 0;
 
-            uint8_t N = 0;
+            volatile uint8_t N = 0;
             
             for (; N < NMAX; N++) {
                 float x2 = x*x,
@@ -27,9 +29,11 @@ void calc_mandelbrot_scalar(sfImage* image, trans_t transform,
                 x = x2 - y2 + x0;
                 y = 2*xy + y0;
             }
-
-            sfImage_setPixel(image, (sfVector2u){ix, iy}, 
-                             set_color_by_N(N, color_offset));
+            
+            DRAWING(
+                sfImage_setPixel(image, (sfVector2u){ix, iy}, 
+                                 set_color_by_N(N, color_offset));
+            )
         }
     }
 }
@@ -129,11 +133,11 @@ void calc_mandelbrot_array(sfImage* image, trans_t transform,
             
             m256 x_vec = mm256_set1_ps_array(0);
             m256 y_vec = mm256_set1_ps_array(0);
-            m256 N_vec = mm256_set1_ps_array(0);  // N_vec теперь m256 (float)
+            m256 N_vec = mm256_set1_ps_array(0);
             m256 TWO_VECT = mm256_set1_ps_array(2.0f);
             m256 R2MAX_VECT = mm256_set1_ps_array(R2MAX);
             
-            for (uint32_t iter = 0; iter < NMAX; iter++) {
+            for (volatile uint32_t iter = 0; iter < NMAX; iter++) {
                 m256 x2_vec = mm256_mul_ps_array(x_vec, x_vec);
                 m256 y2_vec = mm256_mul_ps_array(y_vec, y_vec);
                 m256 xy_vec = mm256_mul_ps_array(x_vec, y_vec);
@@ -154,10 +158,12 @@ void calc_mandelbrot_array(sfImage* image, trans_t transform,
             float N[8];
             mm256_storeu_ps_array(N, N_vec);
             
-            for (uint32_t i = 0; i < 8; i++) {
-                sfImage_setPixel(image, (sfVector2u){ix + i, iy}, 
-                                 set_color_by_N((uint32_t)N[i], color_offset));
-            }
+            DRAWING(
+                for (uint32_t i = 0; i < 8; i++) {
+                    sfImage_setPixel(image, (sfVector2u){ix + i, iy}, 
+                                     set_color_by_N((uint32_t)N[i], color_offset));
+                }
+            )
         }
     }
 }
@@ -173,7 +179,7 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
         float y0 = (iy - transform.vert_offset) * transform.scale;
         __m256 y0_vec = _mm256_set1_ps(y0);
 
-        for (uint32_t ix = 0; ix < IMG_WDTH; ix += 8) {
+        for (volatile uint32_t ix = 0; ix < IMG_WDTH; ix += 8) {
             __m256 ix_vec = _mm256_set1_ps(float(ix));
 
             __m256 x0_vec = _mm256_add_ps(ix_vec, indices);
@@ -209,27 +215,31 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
 
             float* N = (float*)calloc(8, sizeof(float));
             _mm256_storeu_ps(N, N_vec);
-
-            for (uint32_t i = 0; i < 8; i++) {
-                sfImage_setPixel(image, (sfVector2u){ix + i, iy}, 
-                                 set_color_by_N(N[i], color_offset));
-            }  
+            
+            DRAWING(
+                for (uint32_t i = 0; i < 8; i++) {
+                    sfImage_setPixel(image, (sfVector2u){ix + i, iy}, 
+                                     set_color_by_N(N[i], color_offset));
+                }
+            )
         }
     }
 }
 
-static sfColor set_color_by_N (float N, color_t color_offset) {
-    float t = N / NMAX;
-    uint8_t red   = (uint8_t)(9 * (1 - t) * 
-                              t * t * t * 255);
-    uint8_t green = (uint8_t)(15 * (1 - t) * 
-                              (1 - t) * t * t * 255);
-    uint8_t blue  = (uint8_t)(8.5f * (1 - t) 
-                              * (1 - t) * (1 - t) * t * 255);
+DRAWING(
+    static sfColor set_color_by_N (float N, color_t color_offset) {
+        float t = N / NMAX;
+        uint8_t red   = (uint8_t)(9 * (1 - t) * 
+                                  t * t * t * 255);
+        uint8_t green = (uint8_t)(15 * (1 - t) * 
+                                  (1 - t) * t * t * 255);
+        uint8_t blue  = (uint8_t)(8.5f * (1 - t) 
+                                  * (1 - t) * (1 - t) * t * 255);
 
-    sfColor color = {(uint8_t)(red - color_offset.red), 
-                     (uint8_t)(green - color_offset.green),
-                     (uint8_t)(blue - color_offset.blue), 
-                     255};
-    return color;
-}
+        sfColor color = {(uint8_t)(red - color_offset.red), 
+                         (uint8_t)(green - color_offset.green),
+                         (uint8_t)(blue - color_offset.blue), 
+                         255};
+        return color;
+    }
+)

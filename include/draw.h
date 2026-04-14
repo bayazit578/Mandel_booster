@@ -5,6 +5,17 @@
 #include <stdint.h>
 #include <math.h>
 
+#ifdef BENCHMARK
+    #define IF_BENCHMARK(...) __VA_ARGS__
+    #define DRAWING(...)
+#else
+    #define IF_BENCHMARK(...)
+    #define DRAWING(...) __VA_ARGS__
+#endif
+
+const int IMG_WDTH = 800;
+const int IMG_HGHT = 600;
+
 typedef struct {
         uint8_t red;
         uint8_t green;
