@@ -1,8 +1,78 @@
 #include "draw.h"
-
+#include "calc.h"
 
 static void change_color(sfEvent event, color_t* color_offset, 
                          uint8_t increment);
+
+void render_window(sfRenderWindow* window, sfImage* image, 
+                   sfText* title_text, sfClock* fps_clock,
+                   color_t color_offset, trans_t transform,
+                   sfEvent event, FILE* bench_out_file) {
+    IF_BENCHMARK(
+        uint32_t cycle_counter = 0;
+    )
+    while (sfRenderWindow_isOpen(window)) {
+        DRAWING(
+            while (sfRenderWindow_pollEvent(window, &event)) {
+                handle_events(event, window, color_offset);
+            }
+
+            sfRenderWindow_clear(window, sfBlack);
+        )
+
+        IF_BENCHMARK(
+            cycle_counter++;
+            if (cycle_counter == AVERAGE_CYCLE_COUNT) {
+                break;
+            }
+
+            _mm_lfence(); 
+            int64_t clock1 = __rdtsc();
+        )
+       
+        CALC_MANDELBROT(image, transform, color_offset)
+
+        IF_BENCHMARK(
+                _mm_lfence(); 
+                int64_t clock2 = __rdtsc();
+                fprintf(bench_out_file, "%ld\n", clock2 - clock1);
+        )
+        
+        DRAWING(
+            draw_fps(fps_clock, title_text);
+            draw_image_n_text_on_window(image, window, title_text);
+        )
+    }
+
+    sfImage_destroy(image);
+    sfRenderWindow_destroy(window);
+}
+
+void draw_image_n_text_on_window(sfImage* image, sfRenderWindow* window, 
+                                 sfText* title_text) {
+    sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
+    sfTexture_updateFromImage(texture, image, {0, 0});
+    sfSprite* sprite = sfSprite_create(texture);
+    sfRenderWindow_drawSprite(window, sprite, NULL);
+    sfRenderWindow_drawText(window, title_text, NULL);
+
+    sfRenderWindow_display(window);
+    sfSprite_destroy(sprite);
+    sfTexture_destroy(texture);
+}
+
+sfText* text_create() {
+    sfFont* font = sfFont_createFromFile("fonts/Cascadia.ttf");
+
+    sfText* title_text = sfText_create(font);
+    sfText_setCharacterSize(title_text, 16);
+    sfText_setFillColor(title_text, {255, 255, 255, 255});
+
+    sfText_setOutlineColor(title_text, sfBlack);
+    sfText_setOutlineThickness(title_text, 2.0f);
+
+    return title_text;
+}
 
 void handle_events(sfEvent event, sfRenderWindow* window, 
                    color_t color_offset) {
@@ -31,7 +101,7 @@ void handle_events(sfEvent event, sfRenderWindow* window,
     }
 }
 
-sfText* prepare_text() {
+sfText* prepare_create() {
     sfFont* font = sfFont_createFromFile("fonts/Cascadia.ttf"); 
 
     sfText* title_text = sfText_create(font);

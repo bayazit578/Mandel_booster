@@ -141,12 +141,14 @@ void calc_mandelbrot_array(sfImage* image, trans_t transform,
                 m256 x2_vec = mm256_mul_ps_array(x_vec, x_vec);
                 m256 y2_vec = mm256_mul_ps_array(y_vec, y_vec);
                 m256 xy_vec = mm256_mul_ps_array(x_vec, y_vec);
+                
+                m256 new_N_vec = mm256_add_ps_array(N_vec, mm256_set1_ps_array(1.0f));
+                
                 m256 r2_vec = mm256_add_ps_array(x2_vec, y2_vec);
                 
                 x_vec = mm256_add_ps_array(mm256_sub_ps_array(x2_vec, y2_vec), x0_vec);
                 y_vec = mm256_add_ps_array(mm256_mul_ps_array(TWO_VECT, xy_vec), y0_vec);
                 
-                m256 new_N_vec = mm256_add_ps_array(N_vec, mm256_set1_ps_array(1.0f));
                 m256i cmp_mask_vec = mm256_cmp_ps_array(r2_vec, R2MAX_VECT, 0);
                 
                 N_vec = mm256_blendv_ps_array(N_vec, new_N_vec, cmp_mask_vec);
@@ -169,7 +171,7 @@ void calc_mandelbrot_array(sfImage* image, trans_t transform,
 }
 
 void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
-                               color_t color_offset) {
+                            color_t color_offset) {
     __m256 indices = _mm256_set_ps(7.f, 6.f, 5.f, 4.f, 
                                    3.f, 2.f, 1.f, 0.f);
     __m256 hor_offset_vec = _mm256_set1_ps(transform.hor_offset);
@@ -190,18 +192,20 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
             __m256 y_vec  = _mm256_set1_ps(0);
             __m256 N_vec  = _mm256_cvtepi32_ps(_mm256_set1_epi32(0));
 
-            for (uint32_t iter = 0; iter < NMAX; iter++) {
+            for (volatile uint32_t iter = 0; iter < NMAX; iter++) {
                 __m256 x2_vec = _mm256_mul_ps(x_vec, x_vec);
                 __m256 y2_vec = _mm256_mul_ps(y_vec, y_vec);
                 __m256 xy_vec = _mm256_mul_ps(x_vec, y_vec);
-                __m256 r2_vec = _mm256_add_ps(x2_vec, y2_vec);
+                
                 __m256 cmp_mask_vec = _mm256_set1_ps(0);
+                __m256 new_N_vec = _mm256_add_ps(N_vec, _mm256_set1_ps(1));
+                
+                __m256 r2_vec = _mm256_add_ps(x2_vec, y2_vec);
 
                 x_vec = _mm256_add_ps(_mm256_sub_ps(x2_vec, y2_vec), 
                                                            x0_vec);
                 y_vec = _mm256_add_ps(_mm256_mul_ps(TWO_VECT, xy_vec), 
                                                            y0_vec);
-                __m256 new_N_vec = _mm256_add_ps(N_vec, _mm256_set1_ps(1));
 
                 cmp_mask_vec = _mm256_cmp_ps(r2_vec, R2MAX_VECT, _CMP_LT_OQ);
                 N_vec = _mm256_blendv_ps(N_vec, new_N_vec, cmp_mask_vec);

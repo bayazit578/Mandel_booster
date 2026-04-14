@@ -9,12 +9,6 @@
 #include "draw.h"
 
 typedef struct {
-        float scale;
-        float vert_offset;
-        float hor_offset;
-} trans_t;
-
-typedef struct {
     float data[8];
 } m256;
 
