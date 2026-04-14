@@ -97,14 +97,15 @@ int main(int argc, char* argv[]) {
         DRAWING(
             draw_fps(fps_clock, title_text);
 
-        sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
-        sfTexture_updateFromImage(texture, image, {0, 0});
-        sfSprite* sprite = sfSprite_create(texture);
-        sfRenderWindow_drawSprite(window, sprite, NULL);
-        sfRenderWindow_drawText(window, title_text, NULL);
-
-        sfSprite_destroy(sprite);
-        sfTexture_destroy(texture);
+            sfTexture* texture = sfTexture_create({IMG_WDTH, IMG_HGHT});
+            sfTexture_updateFromImage(texture, image, {0, 0});
+            sfSprite* sprite = sfSprite_create(texture);
+            sfRenderWindow_drawSprite(window, sprite, NULL);
+            sfRenderWindow_drawText(window, title_text, NULL);
+            
+            sfRenderWindow_display(window);
+            sfSprite_destroy(sprite);
+            sfTexture_destroy(texture);
         )
     }
 
