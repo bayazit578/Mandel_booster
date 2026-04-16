@@ -19,7 +19,6 @@ def main():
     output_file = sys.argv[3]
     stats_output = sys.argv[4]
     
-    # Проверяем существование входных файлов
     if not os.path.exists(cycles_file):
         print(f"Ошибка: Файл '{cycles_file}' не найден!")
         sys.exit(1)
@@ -28,18 +27,15 @@ def main():
         print(f"Ошибка: Файл статистики '{stats_file}' не найден!")
         sys.exit(1)
     
-    # Создаем директорию для выходного файла если нужно
     output_dir = os.path.dirname(output_file)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
         print(f"Создана папка: {output_dir}")
     
-    # Создаем директорию для файла статистики если нужно
     stats_dir = os.path.dirname(stats_output)
     if stats_dir and not os.path.exists(stats_dir):
         os.makedirs(stats_dir)
     
-    # === 1. Читаем данные тактов из файла ===
     cycles = []
     with open(cycles_file, 'r') as f:
         for line in f:
@@ -50,15 +46,12 @@ def main():
     cycles = np.array(cycles)
     cycles_iterations = np.arange(1, len(cycles) + 1)
     
-    # Считаем статистику для тактов
     cycles_mean = np.mean(cycles)
     cycles_std = np.std(cycles)
     
-    # === 2. Читаем данные статистики ===
     df_stats = pd.read_csv(stats_file, sep='\t')
     print(f"Загружен файл статистики: {stats_file}")
     
-    # Получаем имя файла статистики для подписи
     stats_name = os.path.basename(stats_file)
     
     # Считаем статистику для частоты
@@ -69,26 +62,21 @@ def main():
     TIME_STEP = 0.5
     df_stats['Time_sec'] = np.arange(0, len(df_stats) * TIME_STEP, TIME_STEP)[:len(df_stats)]
     
-    # === Записываем статистику в файл ===
     with open(stats_output, 'a') as f:
         f.write(f"{stats_name}: {cycles_mean/1e8:.2f}±{3*cycles_std/1e8:.2f} ×10⁸\n")
     
     print(f"Статистика добавлена в: {stats_output}")
     
-    # === Создаем фигуру с двумя подграфиками ===
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 9))
     
-    # Расстояние между графиками
     plt.subplots_adjust(hspace=0.3)
     
-    # === ГРАФИК 1: Такты от итерации ===
     ax1.plot(cycles_iterations, cycles, 'b-', linewidth=0.5, label='Такты')
     ax1.axhline(y=cycles_mean, color='red', linestyle='--', linewidth=1.5, label=f'Среднее: {cycles_mean:.2e}')
     
     ax1.set_xlabel('Номер итерации', fontsize=11)
     ax1.set_ylabel('Количество тактов', fontsize=11)
     
-    # Форматируем числа для заголовка
     mean_str = f'{cycles_mean/1e8:.2f}'
     std_str = f'{cycles_std/1e8:.2f}'
     sigma3_str = f'{3*cycles_std/1e8:.2f}'
@@ -100,10 +88,8 @@ def main():
     ax1.ticklabel_format(axis='y', style='scientific', scilimits=(8, 8))
     ax1.yaxis.get_offset_text().set_fontsize(10)
     
-    # === ГРАФИК 2: Частота и температура ===
-    bar_width = TIME_STEP * 0.35  # Уменьшена ширина для отступов между барами
+    bar_width = TIME_STEP * 0.35 
     
-    # Левая ось - частота Bzy_MHz
     ax2.bar(df_stats['Time_sec'] - bar_width/2, df_stats['Bzy_MHz'], 
             width=bar_width, 
             color='steelblue', 
@@ -120,7 +106,6 @@ def main():
     ax2.grid(True, alpha=0.3, axis='y')
     ax2.set_ylim(2390, 2405)
     
-    # Правая ось - температура
     ax2_twin = ax2.twinx()
     ax2_twin.bar(df_stats['Time_sec'] + bar_width/2, df_stats['CoreTmp'], 
                  width=bar_width, 
@@ -132,13 +117,11 @@ def main():
     
     ax2_twin.set_ylabel('Температура (°C)', fontsize=11, color='coral')
     ax2_twin.tick_params(axis='y', labelcolor='coral')
-    ax2_twin.set_ylim(40, 55)
+    ax2_twin.set_ylim(40, 70)
     
-    # Форматируем заголовок с частотой
     ax2.set_title(f'Частота: среднее = {bzy_mean:.1f} MHz, σ = {bzy_std:.2f} MHz, 3σ = {3*bzy_std:.2f} MHz ({stats_name})', 
                   fontsize=12, fontweight='bold')
     
-    # Настройка оси X для графика статистики
     max_time = df_stats['Time_sec'].iloc[-1]
     if max_time <= 30:
         interval = 5
@@ -152,7 +135,6 @@ def main():
     ax2.set_xticklabels([f'{x:.1f}' for x in xticks], rotation=45)
     ax2.set_xlim(-TIME_STEP, max_time + TIME_STEP)
     
-    # Легенда
     lines1, labels1 = ax2.get_legend_handles_labels()
     lines2, labels2 = ax2_twin.get_legend_handles_labels()
     ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper right', fontsize=9)
@@ -162,7 +144,6 @@ def main():
     plt.tight_layout()
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\nГрафик сохранен: {output_file}")
-    # plt.show()  # закомментировано
 
 if __name__ == "__main__":
     main()

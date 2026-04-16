@@ -10,20 +10,18 @@
 #include "draw.h"
 
 int main(int argc, char* argv[]) {
-    IF_BENCHMARK(
-        char* bench_filename = NULL;
-        if (argc == 2) {
-            bench_filename = argv[1];
-        } else {
-            fprintf(stderr, "No output file for benchmark\n");
-            return EXIT_FAILURE;
-        }
+    char* bench_filename = NULL;
+    if (argc == 2) {
+        bench_filename = argv[1];
+    } else {
+        fprintf(stderr, "No output file for benchmark\n");
+        return EXIT_FAILURE;
+    }
 
-        FILE* bench_out_file = fopen(bench_filename, "w");
-        if (!bench_out_file) {
-            perror("fopen error");
-        }
-    )
+    FILE* bench_out_file = fopen(bench_filename, "w");
+    if (!bench_out_file) {
+        perror("fopen error");
+    }
 
     sfRenderWindow* window = 
                         sfRenderWindow_create({IMG_WDTH, IMG_HGHT, 32},

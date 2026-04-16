@@ -176,6 +176,7 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
                                    3.f, 2.f, 1.f, 0.f);
     __m256 hor_offset_vec = _mm256_set1_ps(transform.hor_offset);
     __m256 scale_vec = _mm256_set1_ps(transform.scale);
+    float* N = (float*)calloc(8, sizeof(float));
 
     for (uint32_t iy = 0; iy < IMG_HGHT; iy++) {
         float y0 = (iy - transform.vert_offset) * transform.scale;
@@ -217,7 +218,6 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
                 }
             }
 
-            float* N = (float*)calloc(8, sizeof(float));
             _mm256_storeu_ps(N, N_vec);
             
             DRAWING(

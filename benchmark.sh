@@ -51,9 +51,9 @@ benchmark() {
 
 benchmark "$1" "$MODE" "$2"
 
-sudo cpupower frequency-set -d 500MHz
-sudo cpupower frequency-set -u 3GHz
-sudo cpupower frequency-set -g performance
+sudo cpupower frequency-set -d 400MHz
+sudo cpupower frequency-set -u 2.4GHz
+sudo cpupower frequency-set -g powersave
 
 RESULTS_DIR="results_$2"
 mkdir -p $RESULTS_DIR
