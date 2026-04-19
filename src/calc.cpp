@@ -228,6 +228,8 @@ void calc_mandelbrot_intrin(sfImage* image, trans_t transform,
             )
         }
     }
+
+    free(N1);
 }
 
 DRAWING(
